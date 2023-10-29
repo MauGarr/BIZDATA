@@ -1,3 +1,4 @@
+
 class ErrorSintactico():
     
     FALTO_IGUAL = 1
