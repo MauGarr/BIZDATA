@@ -471,14 +471,9 @@ class Analizador:
         else:
             print("Hay errores de lexema o sintáctico")
 
-
-
         if self.generarErrores == False:
             for j in self.claves:
-                print("claves: ", j)
-            
-            
-            
+                print("claves: ", j)   
 
     def Registros(self):
         Boolregistros = False
