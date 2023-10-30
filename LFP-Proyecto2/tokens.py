@@ -23,7 +23,6 @@ class Token():
     PUNTO = 20
 
     #Método constructor
-
     def __init__(self, lexema, tipo, fila, columna):
         self.lexema_valido = lexema
         self.tipo = tipo
@@ -60,7 +59,6 @@ class Token():
             return 'PUNTO Y COMA'
         elif self.tipo == self.COMENTARIO_MULTILINEA:
             return 'COMENTARIO MULTILINEA'
-
         elif self.tipo == self.COMENTARIO_UNA_LINEA:
             return 'COMENTARIO DE UNA LINEA'
         elif self.tipo == self.PARENTESIS_I:
