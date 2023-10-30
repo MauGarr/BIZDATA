@@ -27,11 +27,12 @@ class Analizador:
     generarErrores = False
 
     tildes = ['á','é','í','ó','ú']
-    
 
- #----------------------------------------------Analizador lexico----------------------------------------------   
+    
+ # - - - - - ANALIZADOR LÉXICO - - - - - #
 
     def scanner(self, entrada):
+
         #Manejo de tipos
         global tipos
         tipos = Token("random", 0, 0,0) #Llenamos de datos random para importar las variables
@@ -61,27 +62,23 @@ class Analizador:
                     self.estado = 2  #Agregamos los estados para ir concatenando
                     self.columna += 1
                     self.lexema += actual
-                    continue
 
                 elif actual.isdigit(): #VErificamos si es dígito [0-9]
                     self.estado = 3
                     self.columna += 1
                     self.lexema += actual
-                    
                 
                 elif actual == '"':
                     self.columna += 1
                     self.lexema += actual
                     self.agregarToken(tipos.COMILLAS_DOBLE)
                     self.estado = 4 
-                    continue
 
                 elif actual == "'":
                     self.estado = 7
                     self.columna +=1
                     self.lexema += actual
                     
-
                 elif actual == '=':  
                     self.columna += 1
                     self.lexema += actual
@@ -145,7 +142,6 @@ class Analizador:
                 elif actual == '\t':
                     self.columna += 5
                     self.estado = 1
-                
 
                 elif actual == '$' and i == longitud-1:
                     self.lexema += actual
@@ -212,7 +208,6 @@ class Analizador:
                         self.agregarToken(tipos.DESCONOCIDO)
                         self.generarErrores = True
 
-            
             #Estado para los numeros
             elif self.estado == 3:
                 if actual.isdigit() or actual == '.':
@@ -269,7 +264,6 @@ class Analizador:
                     self.columna += 1
                     self.lexema += actual
                 
-                
                 elif actual == '*' and habilitar_cadena:
                     self.estado = 4
                     self.columna += 1
@@ -284,7 +278,6 @@ class Analizador:
                     self.estado = 4
                     self.columna += 1
                     self.lexema += actual
-
                 
                 elif actual == ' ' and habilitar_cadena:
                     self.estado = 4
@@ -306,9 +299,7 @@ class Analizador:
                     self.agregarToken(tipos.CADENA)
                     self.lexema = temporal
                     self.columna += 1
-                    self.agregarToken(tipos.COMILLAS_DOBLE)
-
-                                     
+                    self.agregarToken(tipos.COMILLAS_DOBLE)               
 
             #Estado para los comentarios de una linea
             elif self.estado ==5:
@@ -334,8 +325,7 @@ class Analizador:
                         self.columna = 1
                         self.fila += 1
                     elif actual == '$':
-                        self.agregarToken(tipos.COMENTARIO_UNA_LINEA)
-                    
+                        self.agregarToken(tipos.COMENTARIO_UNA_LINEA)     
             
             #Estado para comentarios de multilinea
             elif self.estado == 6:
@@ -349,14 +339,12 @@ class Analizador:
                         self.agregarToken(tipos.COMENTARIO_MULTILINEA)
                         temp = ''
 
-
                 elif actual == '\n' :
                     self.columna = 1
                     self.fila += 1
                     self.columna = 1
                     self.lexema += actual
                     
-                
                 elif actual.isalpha() :
                     self.columna += 1
                     self.lexema += actual
@@ -371,18 +359,13 @@ class Analizador:
                     self.lexema += actual
                     self.estado = 6
 
-
             elif self.estado == 7:
                 if actual == "'":
                     self.lexema += actual
                     self.columna += 1
                     self.estado = 7
                     if self.lexema == "'''":
-                        self.estado = 6                 
-
-                    
-                
-
+                        self.estado = 6                
 
     #Funcion para ir agregando nuestros tokens
     def agregarToken(self,tipo):
@@ -390,8 +373,6 @@ class Analizador:
         self.lexema = ""
         self.estado = 1
 
-
-    
     #Funcion para verificar si tenemos palabras reservadas
     def palabra_reservada(self, entrada = ''):
         entrada = entrada.lower()
@@ -403,6 +384,7 @@ class Analizador:
         return reservada
     
     def imprimirTokens(self):
+
         for i in self.tokens:
             if i.tipo != tipos.DESCONOCIDO:
                 print('Lexema: ',i.getLexema(), " | Fila: ", i.getFila(), ' | Columna: ', i.getColumna(), ' | Tipo: ',i.getTipo() )
@@ -411,14 +393,13 @@ class Analizador:
                  print('Lexema: ',i.getLexema(), " | Fila: ", i.getFila(), ' | Columna: ', i.getColumna(), ' | Tipo: ',i.getTipo() )
     
     def imprimirErrores(self):
+
         for j in self.tokens:
             if j.tipo == tipos.DESCONOCIDO:
                 print('Lexema: ',j.getLexema(), " | Fila: ", j.getFila(), ' | Columna: ', j.getColumna(), ' | Tipo: ',j.getTipo() )
 
 
-
-
-#--------------------------------------------------------------Analizador sintáctico------------------------------------------------------
+# - - - - - ANALIZADOR SINTÁCTICO - - - - - #
 
     def Claves(self):
         tiposError = ErrorSintactico(0,0, 0)
@@ -460,7 +441,6 @@ class Analizador:
                         self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_COMA, self.tokens[cont-2].getFila(), self.tokens[cont-2].getColumna()))
                         self.generarErrores= True
                     
-
                 elif self.tokens[cont].getLexema().lower() == 'registros':
                     if self.tokens[cont-1].tipo != tipos.CORCHETE_D:
                         self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_CORCHETE_D, self.tokens[cont-1].getFila(), self.tokens[cont-1].getColumna()))
@@ -535,15 +515,13 @@ class Analizador:
                         cont = contadorTemp-1
                         
                 cont += 1
+
         else:
             print("Hay errores de lexema o sintáctico")
-
 
         if self.generarErrores == False:
             for i in self.registros:
                     print("Clave: ", i.getClave(), " Registro: ", i.getRegistro())
-            
-
 
     def SintacticoImprimirReporte(self):
         tiposError = ErrorSintactico(0,0, 0)
@@ -551,7 +529,6 @@ class Analizador:
         cont = 0
         Boolimprimir = False
         
-
         while cont != contadorTemp:
             if self.tokens[cont].getLexema().lower() == 'imprimir' or self.tokens[cont].getLexema().lower() == 'imprimirln'or self.tokens[cont].getLexema().lower() == 'exportarreporte' :
                 if self.tokens[cont+1].tipo != tipos.PARENTESIS_I:
@@ -559,15 +536,13 @@ class Analizador:
                     self.generarErrores = True
                     
                 else:
-                    Boolimprimir = True
-                    
+                    Boolimprimir = True 
 
             elif self.tokens[cont].tipo == tipos.CADENA and Boolimprimir :
                 if self.tokens[cont+2].tipo != tipos.PARENTESIS_D:
                     self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_PARENTESIS_D, self.tokens[cont].getFila(), self.tokens[cont].getColumna()))
                     self.generarErrores = True
                 
-            
             elif self.tokens[cont].tipo == tipos.PARENTESIS_D and Boolimprimir:
 
                 if self.tokens[cont+1].tipo != tipos.PUNTO_COMA:
@@ -578,7 +553,6 @@ class Analizador:
                     Boolimprimir = False
 
             cont+= 1
-
 
     def sintacticoConteoDatos(self):
         tiposError = ErrorSintactico(0,0, 0)
@@ -592,13 +566,11 @@ class Analizador:
                     if  self.tokens[cont+2].tipo == tipos.PUNTO_COMA:
                         self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_PARENTESIS_I, self.tokens[cont].getFila(), self.tokens[cont].getColumna()))
                         self.generarErrores = True
-
-                    
+   
                     else:
                         self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_PARENTESIS_I, self.tokens[cont].getFila(), self.tokens[cont].getColumna()))
                         self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_PUNTO_COMA, self.tokens[cont+1].getFila(), self.tokens[cont+1].getColumna()))
                         self.generarErrores = True
-    
 
                 elif self.tokens[cont+1].tipo == tipos.PARENTESIS_I:
                     if self.tokens[cont+2].tipo == tipos.PUNTO_COMA:
@@ -613,14 +585,12 @@ class Analizador:
                     elif self.tokens[cont+2].tipo == tipos.PARENTESIS_D and self.tokens[cont+3].tipo != tipos.PUNTO_COMA:
                         self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_PUNTO_COMA, self.tokens[cont+2].getFila(), self.tokens[cont+1].getColumna()+1))
                         self.generarErrores = True
-                    
 
                 elif self.tokens[cont+1].tipo == tipos.PUNTO_COMA:
                     self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_PARENTESIS_I, self.tokens[cont].getFila(), self.tokens[cont].getColumna()))
                     self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_PARENTESIS_D, self.tokens[cont].getFila(), self.tokens[cont].getColumna()+1))
                     self.generarErrores = True
                 
-                #
                 elif self.tokens[cont+1].tipo != tipos.PARENTESIS_I and self.tokens[cont+1].tipo != tipos.PARENTESIS_D and self.tokens[cont+1].tipo != tipos.PUNTO_COMA:
                     self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_PARENTESIS_I, self.tokens[cont].getFila(), self.tokens[cont].getColumna()))
                     self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_PARENTESIS_D, self.tokens[cont].getFila(), self.tokens[cont].getColumna()+1))
@@ -640,7 +610,6 @@ class Analizador:
         contadorTemp = len(self.tokens)-1
         cont = 0
         Boolimprimir = False
-        
 
         while cont != contadorTemp:
             if self.tokens[cont].getLexema().lower() == 'promedio' or self.tokens[cont].getLexema().lower() == 'sumar' or self.tokens[cont].getLexema().lower() == 'max' or self.tokens[cont].getLexema().lower() == 'min':
@@ -650,14 +619,12 @@ class Analizador:
                     
                 else:
                     Boolimprimir = True
-                    
 
             elif self.tokens[cont].tipo == tipos.CADENA and Boolimprimir :
                 if self.tokens[cont+2].tipo != tipos.PARENTESIS_D:
                     self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_PARENTESIS_D, self.tokens[cont].getFila(), self.tokens[cont].getColumna()))
                     self.generarErrores = True
                 
-            
             elif self.tokens[cont].tipo == tipos.PARENTESIS_D and Boolimprimir:
 
                 if self.tokens[cont+1].tipo != tipos.PUNTO_COMA:
@@ -681,7 +648,6 @@ class Analizador:
                 if self.tokens[cont+1].tipo == tipos.COMILLAS_DOBLE:
                     self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_PARENTESIS_I, self.tokens[cont].getFila(), self.tokens[cont].getColumna()))
                     self.generarErrores = True
-    
 
                 elif self.tokens[cont+1].tipo == tipos.PARENTESIS_I:
 
@@ -706,18 +672,17 @@ class Analizador:
                         self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_PARENTESIS_D, self.tokens[cont+6].getFila(), self.tokens[cont+6].getColumna()+1))
                         self.erroresSintacticos.append(ErrorSintactico(tiposError.FALTO_PUNTO_COMA, self.tokens[cont+6].getFila(), self.tokens[cont+6].getColumna()+2))
                         self.generarErrores = True
-   
-
-                
 
             cont+= 1
 
-#------------------------------------------FUNCIONES------------------------------------------
+
+# - - - - - FUNCIONES - - - - - #
 
     def Promedio(self,clave):
         suma = 0
         total = 0
         promedio = 0
+
         for i in self.registros:
             if i.getClave() == clave:
                 suma += float(i.getRegistro())
@@ -727,15 +692,17 @@ class Analizador:
         
         return str(promedio)
     
+
     def Sumar(self,clave):
         suma = 0
+
         for i in self.registros:
             if i.getClave() == clave:
                 suma += float(i.getRegistro())
         
         return str(suma)
         
-    
+
     def Maximo(self,clave):
         temp = []
         for i in self.registros:
@@ -746,8 +713,10 @@ class Analizador:
 
         return str(maxNum)
     
+
     def Minimo(self,clave):
         temp = []
+
         for i in self.registros:
             if i.getClave() == clave:
                 temp.append(i.getRegistro())
@@ -758,6 +727,7 @@ class Analizador:
     
     def ContarSi(self,clave,valor):
         suma = 0
+
         for i in self.registros:
             if i.getClave() == clave and i.getRegistro() == valor:
                 suma +=1
@@ -765,22 +735,24 @@ class Analizador:
         return str(suma)
 
 
-#-------------------------------------REPORETES----------------------------------------
+# - - - - - REPORTES - - - - - #
+
+# - - Reporte de claves - - #
     def exportarReporte(self, nombre):
-        docHTML = open(nombre+'.html', 'w')
+        docHTML = open(nombre+'.html', 'w', encoding='utf-8')
         docHTML.write('\n<!DOCTYPE html>')
         docHTML.write('\n<html lang="es">')
         docHTML.write('\n<meta charset="utf-8">')
         docHTML.write('\n<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">')
         docHTML.write('\n<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">')
-        docHTML.write('\n<title>Reporte de Tokens</title>')
+        docHTML.write('\n<title>Reporte de Registros</title>')
         docHTML.write('\n</head>')
         docHTML.write('\n<body>')
-        docHTML.write('\n<div class="container">')
+        docHTML.write('\n<div class="container my-5">')
         docHTML.write('\n <h4 class= "text-center"> '+nombre+' </h4>')
         docHTML.write('\n<div>')
         docHTML.write('\n<div class="container">')
-        docHTML.write('\n<table class="table" border="1">')    
+        docHTML.write('\n<table class="table table-primary table-striped" border="1">')    
         docHTML.write('\n\t <thead class="thead-dark">')
         docHTML.write('\n\t\t <tr>')
         
@@ -795,7 +767,6 @@ class Analizador:
         
         rango = int(len(self.registros) / len(self.claves))
 
-
         for j in range(rango):
             docHTML.write('\n\t\t </tr>')
             for k in range(len(self.claves)):
@@ -803,7 +774,6 @@ class Analizador:
                 docHTML.write('</td>')
                 cont+=1
             docHTML.write('\n\t\t </tr>')
-            
 
         docHTML.write('\n\t </tbody>')
         docHTML.write('\n</table>')
@@ -812,24 +782,25 @@ class Analizador:
         docHTML.write('\n</html>')
         
         docHTML.close()
-
         webbrowser.open_new_tab(nombre+'.html')
 
+
+# - - Reporte de Tokens Validos - - #
     def reporteTokensValidos(self):
-        docHTML = open('reporteTokensValidos.html', 'w')
+        docHTML = open('reporteTokensValidos.html', 'w', encoding='utf-8')
         docHTML.write('\n<!DOCTYPE html>')
         docHTML.write('\n<html lang="es">')
         docHTML.write('\n<meta charset="utf-8">')
         docHTML.write('\n<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">')
         docHTML.write('\n<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">')
-        docHTML.write('\n<title>Reporte de Tokens</title>')
+        docHTML.write('\n<title>Reporte de Tokens Válidos</title>')
         docHTML.write('\n</head>')
         docHTML.write('\n<body>')
-        docHTML.write('\n<div class="container">')
-        docHTML.write('\n <h4 class= "text-center"> Lista de Tokens Validos </h4>')
+        docHTML.write('\n<div class="container my-5">')
+        docHTML.write('\n <h4 class= "text-center"> Lista de Tokens Válidos </h4>')
         docHTML.write('\n<div>')
-        docHTML.write('\n<div class="container">')
-        docHTML.write('\n<table class="table" border="1">')    
+        docHTML.write('\n<div class="container my-3">')
+        docHTML.write('\n<table class="table table-success table-striped" border="1">')    
         docHTML.write('\n\t <thead class="thead-dark">')
         docHTML.write('\n\t\t <tr>')
         docHTML.write('\n\t\t\t<th scope = "col">Token</th>')
@@ -860,9 +831,10 @@ class Analizador:
         docHTML.write('\n</html>')
         
         docHTML.close()
-
         webbrowser.open_new_tab('reporteTokensValidos.html')
     
+
+# - - Reporte de Errores - - #
     def reportesErrores(self):
             docHTML = open('reporteErrores.html', 'w')
             docHTML.write('\n<!DOCTYPE html>')
@@ -870,14 +842,14 @@ class Analizador:
             docHTML.write('\n<meta charset="utf-8">')
             docHTML.write('\n<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">')
             docHTML.write('\n<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">')
-            docHTML.write('\n<title>Reporte de Tokens</title>')
+            docHTML.write('\n<title>Reporte de Errores</title>')
             docHTML.write('\n</head>')
             docHTML.write('\n<body>')
-            docHTML.write('\n<div class="container">')
+            docHTML.write('\n<div class="container my-5">')
             docHTML.write('\n <h4 class= "text-center"> Lista de Tokens con Errores </h4>')
             docHTML.write('\n<div>')
-            docHTML.write('\n<div class="container">')
-            docHTML.write('\n<table class="table" border="1">')    
+            docHTML.write('\n<div class="container my-3">')
+            docHTML.write('\n<table class="table table-success table-striped" border="1">')    
             docHTML.write('\n\t <thead class="thead-dark">')
             docHTML.write('\n\t\t <tr>')
             docHTML.write('\n\t\t\t<th scope = "col">Token</th>')
@@ -905,11 +877,11 @@ class Analizador:
             docHTML.write('\n</table>')
             docHTML.write('\n</div>') 
 
-            docHTML.write('\n<div class="container">')
+            docHTML.write('\n<div class="container my-5">')
             docHTML.write('\n <h4 class= "text-center"> Lista Errores Sintacticos</h4>')
             docHTML.write('\n<div>')
-            docHTML.write('\n<div class="container">')
-            docHTML.write('\n<table class="table" border="1">')    
+            docHTML.write('\n<div class="container my-3">')
+            docHTML.write('\n<table class="table table-success table-striped" border="1">')    
             docHTML.write('\n\t <thead class="thead-dark">')
             docHTML.write('\n\t\t <tr>')
             docHTML.write('\n\t\t\t<th scope = "col">Error</th>')
@@ -934,32 +906,26 @@ class Analizador:
             docHTML.write('\n</table>')
             docHTML.write('\n</div>')  
 
-
             docHTML.write('\n</body')
             docHTML.write('\n</html>')
 
-
-        
             docHTML.close()
-
             webbrowser.open_new_tab('reporteErrores.html')
     
 
     def imprimirErroresSintacticos(self):
+
         for i in self.erroresSintacticos:
             print("Error: ", i.getError(), " Fila: ", i.getFila(), " Columna: ", i.getColumna())
 
-
-
-            
 
     def limpiarDatos(self):
         self.claves.clear()
         self.registros.clear()
         
     
+# - - Generar Grafica - - #    
     def generarArbol(self):
-
         boolClaves = False
         boolRegistros = False
         boolImprimir = False
@@ -989,13 +955,16 @@ class Analizador:
             NodoInicio -> NodoClave;
             NodoInicio -> NodoRegistro;\n
         '''
+
         for i in self.tokens:
+
             #Empezamos con las claves
             if i.getLexema().lower() == 'claves':
                 arbol+='NodoClave1[label="tk_claves"];\n'
                 arbol+='NodoClave->NodoClave1;\n'
                 boolClaves = True
                 n += 1
+
             elif i.tipo == tipos.CORCHETE_I and boolClaves:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoClave1->Nodo'+str(n)+';\n'
@@ -1006,6 +975,7 @@ class Analizador:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoClave1->NodoExpresion'+str(n+1)+'->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.COMA and boolClaves:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoClave1->Nodo'+str(n)+';\n'
@@ -1063,6 +1033,7 @@ class Analizador:
                 n+=1
                 boolRegistros = False
 
+
             #Instrucciones -> imprimir
             elif i.getLexema().lower() == 'imprimir':
                 arbol+='NodoInstruccion1[label="tk_imprimir"];\n'
@@ -1076,6 +1047,7 @@ class Analizador:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion1->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.CADENA and boolImprimir:
                 if i.getLexema().find('\\') >= 0:
                     arbol+='NodoExpresion'+str(n+1)+'[label="tk_cadena"];\n'
@@ -1087,13 +1059,12 @@ class Analizador:
                     arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'\ "];\n'
                     arbol += 'NodoInstruccion1->NodoExpresion'+str(n+1)+'->Nodo'+str(n)+';\n'
                     n+=1
-
-
                 
             elif i.tipo == tipos.PARENTESIS_D and boolImprimir:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion1->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PUNTO_COMA and boolImprimir:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion1->Nodo'+str(n)+';\n'
@@ -1114,21 +1085,25 @@ class Analizador:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion2->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.CADENA and boolImprimirln:
                 if i.getLexema().find('\\') >= 0:
                     arbol+='NodoExpresion'+str(n+1)+'[label="tk_cadena"];\n'
                     arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'\ "];\n'
                     arbol += 'NodoInstruccion2->NodoExpresion'+str(n+1)+'->Nodo'+str(n)+';\n'
                     n+=1
+
                 else:
                     arbol+='NodoExpresion'+str(n+1)+'[label="tk_cadena"];\n'
                     arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'\ "];\n'
                     arbol += 'NodoInstruccion2->NodoExpresion'+str(n+1)+'->Nodo'+str(n)+';\n'
                     n+=1
+
             elif i.tipo == tipos.PARENTESIS_D and boolImprimirln:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion2->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PUNTO_COMA and boolImprimirln:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion2->Nodo'+str(n)+';\n'
@@ -1154,6 +1129,7 @@ class Analizador:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion3->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PUNTO_COMA and boolConteo:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion3->Nodo'+str(n)+';\n'
@@ -1161,7 +1137,6 @@ class Analizador:
                 boolConteo = False
             
             #Instruciones -> Promedio
-
             #Instrucciones -> imprimirln
             elif i.getLexema().lower() == 'promedio':
                 arbol+='NodoInstruccion4[label="tk_promedio"];\n'
@@ -1175,20 +1150,24 @@ class Analizador:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion4->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.CADENA and boolPromedio:
                 arbol+='NodoExpresion'+str(n+1)+'[label="tk_cadena"];\n'
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion4->NodoExpresion'+str(n+1)+'->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PARENTESIS_D and boolPromedio:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion4->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PUNTO_COMA and boolPromedio:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion4->Nodo'+str(n)+';\n'
                 n+=1
                 boolPromedio = False
+
 
             #Instrucciones -> contarsi
             elif i.getLexema().lower() == 'contarsi':
@@ -1203,30 +1182,36 @@ class Analizador:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion5->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.CADENA and boolContarsi:
                 arbol+='NodoExpresion'+str(n+1)+'[label="tk_cadena"];\n'
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion5->NodoExpresion'+str(n+1)+'->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.COMA and boolContarsi:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion5->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.NUMERO and boolContarsi:
                 arbol+='NodoExpresion'+str(n+1)+'[label="tk_numero"];\n'
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion5->NodoExpresion'+str(n+1)+'->Nodo'+str(n)+';\n'
-                n+=1    
+                n+=1  
+
             elif i.tipo == tipos.PARENTESIS_D and boolContarsi:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion5->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PUNTO_COMA and boolContarsi:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion5->Nodo'+str(n)+';\n'
                 n+=1
                 boolContarsi = False
             
+
             #Instrucciones -> datos
             elif i.getLexema().lower() == 'datos':
                 arbol+='NodoInstruccion6[label="tk_datos"];\n'
@@ -1245,11 +1230,13 @@ class Analizador:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion6->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PUNTO_COMA and boolDatos:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion6->Nodo'+str(n)+';\n'
                 n+=1
                 boolDatos= False
+
 
             #Instrucciones -> Sumar
             elif i.getLexema().lower() == 'sumar':
@@ -1264,20 +1251,24 @@ class Analizador:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion7->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.CADENA and boolSumar:
                 arbol+='NodoExpresion'+str(n+1)+'[label="tk_cadena"];\n'
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion7->NodoExpresion'+str(n+1)+'->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PARENTESIS_D and boolSumar:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion7->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PUNTO_COMA and boolSumar:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion7->Nodo'+str(n)+';\n'
                 n+=1
                 boolSumar = False
+
 
             #Instrucciones -> Max
             elif i.getLexema().lower() == 'max':
@@ -1292,21 +1283,25 @@ class Analizador:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion8->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.CADENA and boolMax:
                 arbol+='NodoExpresion'+str(n+1)+'[label="tk_cadena"];\n'
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion8->NodoExpresion'+str(n+1)+'->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PARENTESIS_D and boolMax:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion8->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PUNTO_COMA and boolMax:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion8->Nodo'+str(n)+';\n'
                 n+=1
                 boolMax = False
             
+
             #Instrucciones -> Min
             elif i.getLexema().lower() == 'min':
                 arbol+='NodoInstruccion9[label="tk_min"];\n'
@@ -1320,21 +1315,25 @@ class Analizador:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion9->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.CADENA and boolMin:
                 arbol+='NodoExpresion'+str(n+1)+'[label="tk_cadena"];\n'
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion9->NodoExpresion'+str(n+1)+'->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PARENTESIS_D and boolMin:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion9->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PUNTO_COMA and boolMin:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion9->Nodo'+str(n)+';\n'
                 n+=1
                 boolMin = False
             
+
             #Instrucciones -> ExportarReporte
             elif i.getLexema().lower() == 'exportarreporte':
                 arbol+='NodoInstruccion10[label="tk_exportarReporte"];\n'
@@ -1348,15 +1347,18 @@ class Analizador:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion10->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.CADENA and boolReporte:
                 arbol+='NodoExpresion'+str(n+1)+'[label="tk_cadena"];\n'
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion10->NodoExpresion'+str(n+1)+'->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PARENTESIS_D and boolReporte:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion10->Nodo'+str(n)+';\n'
                 n+=1
+
             elif i.tipo == tipos.PUNTO_COMA and boolReporte:
                 arbol +='Nodo'+str(n)+'[label="'+i.getLexema()+'"];\n'
                 arbol += 'NodoInstruccion10->Nodo'+str(n)+';\n'
@@ -1365,12 +1367,13 @@ class Analizador:
 
         arbol += '\n }'
 
-        miArchivo = open('graphviz.dot', 'w')
+
+        miArchivo = open('graph.dot', 'w')
         miArchivo.write(arbol)
         miArchivo.close()
+
     
-        system('dot -Tpng graphviz.dot -o arbol_de_derivacion.png')
+        system('dot -Tpng graph.dot -o grafica_arbol.png')
 
-
-        startfile('arbol_de_derivacion.png')
+        startfile('grafica_arbol.png')
         
