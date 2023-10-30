@@ -1,11 +1,13 @@
 from tkinter import *
 import tkinter as tk
+from tkinter.scrolledtext import ScrolledText
 from tkinter import filedialog
 from tkinter.font import families
 from Analizador import Analizador
 
 analizador = Analizador()
-# Funciones
+
+# - - - Funciones - - - #
 
 def reporteTokens():
     analizador.reporteTokensValidos()
@@ -19,7 +21,7 @@ def abrirArchvo1():
 
     textoEntrada.delete('1.0', END)
 
-    archivo = filedialog.askopenfilename(title="Abrir", filetypes=[("*", "*.bizdata")])
+    archivo = filedialog.askopenfilename(title="Abrir", filetypes=[("Archivo BIZDATA", "*.BIZDATA"), ("Archivo TXT", "*.txt")])
     archivos_texto = open(archivo, 'r', encoding='utf-8')
     textoLeido = archivos_texto.read()
     textoEntrada.insert(tk.END, textoLeido)
@@ -41,7 +43,6 @@ def Compilar():
     analizador.imprimirTokens()
     analizador.imprimirErrores()
     
-
     textoSalida.configure(state='normal')
     textoSalida.delete('1.0', END)
     textoSalida.configure(state='disabled')
@@ -59,7 +60,6 @@ def Compilar():
     clave = ''
     numero = 0
 
-
     if analizador.generarErrores == False:
         analizador.Claves()
         analizador.Registros()
@@ -68,9 +68,7 @@ def Compilar():
         analizador.sintacticoPromMaxMinSum()
         analizador.sintacticoContarSi()
 
-
     if analizador.generarErrores == False:
-        
 
         for i in analizador.tokens:
 
@@ -99,11 +97,9 @@ def Compilar():
                 salidaLn = ''
                 boolimprimirln = False
             
-
             #Opcion de mostar los datos
             elif i.getLexema().lower() == 'datos':
                 
-
                 for i in analizador.claves:
                     textoSalida.configure(state='normal')
                     textoSalida.insert(END, i+'   ')
@@ -130,6 +126,7 @@ def Compilar():
                 textoSalida.configure(state='normal')
                 textoSalida.insert(END,'\n')
                 textoSalida.configure(state='disabled')
+            
             #Promedio
             elif i.getLexema().lower()=='promedio':
                 boolpromedio = True
@@ -195,7 +192,6 @@ def Compilar():
                 boolmin = False
 
             #Contar si
-
             elif i.getLexema().lower() == 'contarsi':
                 boolcontarsi = True
             
@@ -213,7 +209,6 @@ def Compilar():
                 boolcontarsi = False
 
             #Reporte html
-
             elif i.getLexema().lower()=='exportarreporte':
                 boolreporte = True
             
@@ -223,58 +218,59 @@ def Compilar():
                 nombre = ''
                 boolreporte = False
         
-
     else:
         textoSalida.configure(state='normal')
         textoSalida.insert(END, "ERROR DE SINTAXIS O LEXICO :(")
         textoSalida.configure(state='disabled')
         analizador.imprimirErroresSintacticos()
 
-
-
-    
-    
     analizador.limpiarDatos()
 
-
-
-#Root
+# - - - - -INTERFAZ GRAFICA- - - - - #
+# Root
 ventana = Tk()
-ventana.config(background="#044D9A")
+ventana.title("BIZDATA - PROGRAM")
+ventana.iconbitmap(r"C:\Users\eg574\OneDrive\Escritorio\LFP_S2_2023_Proyecto2_202200031/LFP-Proyecto2/icon/scanner.ico")
+ventana.config(bg="blue4")
+ventana.resizable(True, True)
 
-ventana.geometry("1200x900")
-ventana.title("Editor de base de datos")
+# Obtenemos las dimensiones de la pantalla
+ancho_pantalla = ventana.winfo_screenwidth()
+alto_pantalla = ventana.winfo_screenheight()
+# Calculamos la posición de la ventana para centrarla
+x = int(ancho_pantalla/2 - 600)
+y = int(alto_pantalla/2 - 350)
+# Centramos la ventana
+ventana.geometry("1200x600+{}+{}".format(x, y))
 
 #Ventana de edicion y lectura de texto
-textoEntrada = Text(ventana, height=40, width=70, bg="#313131", fg="white", font=("Consolas", 11)) 
-textoEntrada.place(x=10, y=100)
+textoEntrada = ScrolledText(ventana, wrap=tk.WORD, height=28, width=70, bg="white", fg="black", font=("Tahoma", 12))
+textoEntrada.place(x=35, y=120)
 
-
-textoSalida = Text(ventana, height=40, width=70, bg="#313131",state='disabled', fg="white", font=("Consolas", 11))
-textoSalida.place(x=600, y=100)
-
+textoSalida = ScrolledText(ventana, wrap=tk.WORD, height=28, width=70, bg="white",state='disabled', fg="black", font=("Tahoma", 12))
+textoSalida.place(x=700, y=120)
 
 #Botones
-btnAbrirArchivo = Button(ventana, height=2, width=10, text="Abrir archivo", command = abrirArchvo1, background="#368807", font=("Verdana",10), fg="white")
-btnAbrirArchivo.place(x=320, y=50)
+btnAbrirArchivo = Button(ventana, height=2, width=11, text="Abrir archivo", command = abrirArchvo1, background="greenyellow", font=("Arial",12), fg="black")
+btnAbrirArchivo.place(x=315, y=50)
 
-btnAnalizar = Button(ventana, height=2, width=10, text="Compilar", command=Compilar, background="#10139E", font=("Verdana",10), fg="white")
+btnAnalizar = Button(ventana, height=2, width=10, text="Procesar", command=Compilar, background="greenyellow", font=("Arial",12), fg="black")
 btnAnalizar.place(x=420, y=50)
 
-btnReporeteTokensValidos = Button(ventana, height=2, width=12, text="Tokens válidos",command=reporteTokens, background="#8E8C08", font=("Verdana",10), fg="white")
+btnReporeteTokensValidos = Button(ventana, height=2, width=12, text="Tokens válidos",command=reporteTokens, background="greenyellow", font=("Arial",12), fg="black")
 btnReporeteTokensValidos.place(x=515, y=50)
 
-btnReporeteTokensInvalidos = Button(ventana, height=2, width=13, text="Errores",command=reporteErrores, background="#B03314", font=("Verdana",10), fg="white")
+btnReporeteTokensInvalidos = Button(ventana, height=2, width=10, text="Errores",command=reporteErrores, background="greenyellow", font=("Arial",12), fg="black")
 btnReporeteTokensInvalidos.place(x=630, y=50)
 
-btnReporeteGrpahviz = Button(ventana, height=2, width=10, text="Graphviz" , command=analizador.generarArbol, background="#0D9597", font=("Verdana",10), fg="white")
-btnReporeteGrpahviz.place(x=750, y=50)
+btnReporeteGrpahviz = Button(ventana, height=2, width=8, text="Graficar" , command=analizador.generarArbol, background="greenyellow", font=("Arial",12), fg="black")
+btnReporeteGrpahviz.place(x=720, y=50)
 
 #Labels
-labelEditor = Label (ventana, text ="EDITOR DE TEXTO", font=("Verdana",15), background="#044D9A", fg="white")
-labelEditor.place(x=90, y=50)
+labelEditor = Label (ventana, text ="EDITOR DE TEXTO", font=("Trebuchet MS", 15), background="#044D9A", fg="white")
+labelEditor.place(x=60, y=58)
 
-labelTerminal = Label (ventana, text ="TERMINAL", font=("Verdana",15), background="#044D9A", fg="white")
-labelTerminal.place(x=900, y=50)
+labelTerminal = Label (ventana, text ="CONSOLA", font=("Trebuchet MS", 15), background="#044D9A", fg="white")
+labelTerminal.place(x=980, y=58)
 
 ventana.mainloop()
