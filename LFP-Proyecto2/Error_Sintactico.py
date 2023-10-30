@@ -1,4 +1,3 @@
-
 class ErrorSintactico():
     
     FALTO_IGUAL = 1
@@ -12,7 +11,6 @@ class ErrorSintactico():
     FALTO_PARENTESIS_D = 9
     FALTO_LLAVE_I = 10
     FALTO_LLAVE_D = 11
-
 
     def __init__(self, error, fila, columna):
         self.error = error
