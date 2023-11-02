@@ -228,7 +228,7 @@ def Compilar():
 
 # - - - - -INTERFAZ GRAFICA- - - - - #
 # Root
-ventana = Tk()
+ventana = Tk()  
 ventana.title("BIZDATA - PROGRAM")
 ventana.iconbitmap(r"C:\Users\eg574\OneDrive\Escritorio\LFP_S2_2023_Proyecto2_202200031/LFP-Proyecto2/icon/scanner.ico")
 ventana.config(bg="blue4")
